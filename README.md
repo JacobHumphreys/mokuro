@@ -49,6 +49,23 @@ Run in command line:
 pip3 install mokuro
 ```
 
+## With Nix
+
+If you use nix, you might find it easier to use our the dedicated flake. 
+
+```commandline
+nix run github:JacobHumphreys/mokuro#mokuro
+```
+
+
+You can run mokuro with the following command from the repository root to run mokuro after fetching with dependencies
+
+```commandline
+nix run .
+```
+
+Alternatively, you can use the following to enter a shell using the flake
+
 # Usage
 
 ## Run on one volume
