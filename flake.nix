@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/25.11";
+    self.submodules = true;
   };
 
   outputs = {
@@ -14,43 +15,135 @@
       inherit system;
     };
 
-    dependencies = with pkgs; [
+    libraryPackages = with pkgs; [
       stdenv.cc.cc.lib
       zlib
       xorg.libxcb
       libGL
       glib
-      python312
-      uv
     ];
 
-    libraryPackages = [
-      pkgs.stdenv.cc.cc.lib
-      pkgs.zlib
-      pkgs.xorg.libxcb
-      pkgs.libGL
-      pkgs.glib
-    ];
+    pythonWithoutPackages = with pkgs; [python312 uv];
+
+    pythonWithPackages = pkgs.python312.withPackages (ps:
+      with ps; [
+        pytest
+        ruff
+
+        fire
+        loguru
+        manga-ocr
+        natsort
+        numpy
+        opencv-python
+        pillow
+        pyclipper
+        requests
+        scipy
+        setuptools
+        shapely
+        torch
+        torchsummary
+        torchvision
+        transformers
+        tqdm
+        yattag
+      ]);
+
+    torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
+    src = ./.;
   in {
     devShells.${system} = {
       default = pkgs.mkShell {
-        nativeBuildInputs = dependencies ++ [self.packages.${system}.default];
+        nativeBuildInputs =
+          [pythonWithPackages]
+          ++ libraryPackages
+          ++ [self.packages.${system}.development];
+
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (libraryPackages ++ [pythonWithPackages]);
+
+        shellHook = '''';
+      };
+
+      devUv = pkgs.mkShell {
+        nativeBuildInputs =
+          pythonWithoutPackages
+          ++ libraryPackages
+          ++ [self.packages.${system}.uv-local];
 
         LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libraryPackages;
 
-        shellHook = ''
-        '';
+        shellHook = '''';
       };
     };
 
     packages.${system} = {
+      # Runs off of nix store copy 
       default = pkgs.writeShellApplication {
         name = "mokuro";
-        runtimeInputs = dependencies;
+        runtimeInputs =
+          [pythonWithPackages] ++ libraryPackages;
+
+        text = ''
+          # Script called when command mokuro is used
+
+          export CUDA_VISIBLE_DEVICES=""
+          export LD_LIBRARY_PATH=${torchLib}:${pkgs.lib.makeLibraryPath ([pythonWithPackages]
+              ++ libraryPackages)}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+
+          # This is used to avoid an issue with deadlocking.
+          # Does not seem to greatly hinder performance.
+          export OMP_NUM_THREADS=1
+          export MKL_NUM_THREADS=1
+          export OPENBLAS_NUM_THREADS=1
+          export CV2_NUM_THREADS=1
+
+          #Goto nix store copy of repo
+          cd ${src}
+
+          #convert paths to absolute. Mokuro will run in the store not from cwd.
+          args=()
+          for path in "$@"; do
+            args+=("$(realpath "$OLDPWD/$path")")
+          done
+
+          python -m mokuro "''${args[@]}"
+        '';
+      };
+
+      #runs mokuro locally using nixpkgs
+      development = pkgs.writeShellApplication {
+        name = "mokuro";
+        runtimeInputs =
+          [pythonWithPackages] ++ libraryPackages ;
+
+        text = ''
+          # Warning this is using nixpkgs to provide python depenedencies
+
+          export CUDA_VISIBLE_DEVICES=""
+          export LD_LIBRARY_PATH=${torchLib}:${pkgs.lib.makeLibraryPath ([pythonWithPackages]
+              ++ libraryPackages)}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+
+          # This is used to avoid an issue with deadlocking.
+          # Does not seem to greatly hinder performance.
+          export OMP_NUM_THREADS=1
+          export MKL_NUM_THREADS=1
+          export OPENBLAS_NUM_THREADS=1
+          export CV2_NUM_THREADS=1
+
+          python -m mokuro "$@"
+        '';
+      };
+
+      # Runs mokuro through python via uv/pip and venv.
+      uv-local = pkgs.writeShellApplication {
+        name = "mokuro";
+        runtimeInputs = libraryPackages ++ pythonWithoutPackages;
 
         text = ''
           export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath libraryPackages}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
+          echo "Waring: This version of Mokuro only works from within its repository due to the immutable nix store. This is intended to be used for development only. If you are trying to use mokuro as a package, please use the default package"
           uv run python -m mokuro "$@"
         '';
       };
