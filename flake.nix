@@ -148,12 +148,5 @@
         '';
       };
     };
-
-    apps.${system} = {
-      default = {
-        type = "app";
-        program = "${self.packages.${system}.default}/bin/mokuro";
-      };
-    };
   };
 }
