@@ -4,11 +4,16 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/25.11";
     self.submodules = true;
+    comic-text-detector = {
+      url = "path:./comic_text_detector";
+      flake = false;                 # Set to false if not a flake
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
+    comic-text-detector,
   }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
@@ -52,23 +57,24 @@
 
     torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
 
-    src = self;
+    src = pkgs.fetchgit {
+      url = "file://${./.}";
+      submodules = true;
+    };
 
     comic-text-detector-src = pkgs.fetchFromGitHub {
-        owner = "kha-white";
-        repo = "comic-text-detector";
-        rev = "master";
-        sha256 = "lxmcDuPRlRABkXJP2oNvjRLxRJpqK6mn+F4kaGvnz/k=";  # nix build will tell you the real hash, then paste it in
+      owner = "kha-white";
+      repo = "comic-text-detector";
+      rev = "master";
+      sha256 = "lxmcDuPRlRABkXJP2oNvjRLxRJpqK6mn+F4kaGvnz/k="; # nix build will tell you the real hash, then paste it in
     };
 
     combined_src = pkgs.runCommand "mokuro-combined-src" {} ''
-          mkdir -p $out
-          cp -r ${src}/. $out/
-          rm -rf $out/comic_text_detector/
-          cp -rf ${comic-text-detector-src}/* $out/comic_text_detector/
-          chmod -R u+w $out
+      mkdir -p $out
+      cp -r ${src}/. $out/
+      cp -r ${comic-text-detector-src}/* $out/comic_text_detector/
+      chmod -R u+w $out
     '';
-
   in {
     devShells.${system} = {
       default = pkgs.mkShell {
