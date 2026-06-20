@@ -51,6 +51,8 @@
       ]);
 
     torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
+
+    src = ./.;
   in {
     devShells.${system} = {
       default = pkgs.mkShell {
