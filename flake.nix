@@ -51,11 +51,15 @@
       ]);
 
     torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
-    src = pkgs.fetchgit {
-        url = "https://github.com/JacobHumphreys/mokuro.git";
-        fetchSubmodules = true;
+
+    comic-text-detector-src = pkgs.fetchgit {
+        url = "https://github.com/kha-white/comic-text-detector.git";
+        rev = "master";  # or a specific commit hash, recommended for reproducibility
         sha256 = pkgs.lib.fakeSha256;  # nix build will tell you the real hash, then paste it in
     };
+
+    src = ./.;
+
   in {
     devShells.${system} = {
       default = pkgs.mkShell {
@@ -104,6 +108,7 @@
 
           #Goto nix store copy of repo
           cd ${src}
+          cp ${comic-text-detector-src} .
 
           #convert paths to absolute. Mokuro will run in the store not from cwd.
           args=()
