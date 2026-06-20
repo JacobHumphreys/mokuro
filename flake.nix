@@ -53,7 +53,6 @@
     torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
     src = pkgs.fetchgit {
         url = "https://github.com/JacobHumphreys/mokuro.git";
-        rev = "master";  # or a specific commit hash, recommended for reproducibility
         fetchSubmodules = true;
         sha256 = pkgs.lib.fakeSha256;  # nix build will tell you the real hash, then paste it in
     };
