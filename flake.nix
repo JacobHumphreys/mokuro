@@ -51,9 +51,6 @@
       ]);
 
     torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
-
-    src = ./.;
-
   in {
     devShells.${system} = {
       default = pkgs.mkShell {
@@ -80,7 +77,7 @@
     };
 
     packages.${system} = {
-      # Runs off of nix store copy 
+      # Runs off of nix store copy
       default = pkgs.writeShellApplication {
         name = "mokuro";
         runtimeInputs =
@@ -118,7 +115,7 @@
       development = pkgs.writeShellApplication {
         name = "mokuro";
         runtimeInputs =
-          [pythonWithPackages] ++ libraryPackages ;
+          [pythonWithPackages] ++ libraryPackages;
 
         text = ''
           # Warning this is using nixpkgs to provide python depenedencies
@@ -150,6 +147,13 @@
           echo "Waring: This version of Mokuro only works from within its repository due to the immutable nix store. This is intended to be used for development only. If you are trying to use mokuro as a package, please use the default package"
           uv run python -m mokuro "$@"
         '';
+      };
+    };
+
+    apps.${system} = {
+      default = {
+        type = "app";
+        program = "${self.packages.${system}.default}/bin/mokuro";
       };
     };
   };
