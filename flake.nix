@@ -138,6 +138,7 @@
           export MKL_NUM_THREADS=1
           export OPENBLAS_NUM_THREADS=1
           export CV2_NUM_THREADS=1
+          export PYTHONPATH="${comic-text-detector}:$PYTHONPATH"
 
           echo "Warning: Development Build Running Locally"
           python -m mokuro "$@"
