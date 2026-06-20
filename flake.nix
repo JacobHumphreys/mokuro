@@ -9,7 +9,6 @@
   outputs = {
     self,
     nixpkgs,
-    comic-text-detector,
   }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
