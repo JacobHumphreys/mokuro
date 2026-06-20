@@ -1,3 +1,5 @@
+from numpy import ndarray, dtype, integer, floating
+from typing import Any
 import json
 import shutil
 import zipfile
@@ -8,7 +10,7 @@ import numpy as np
 
 
 class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj):  # ty:ignore[invalid-method-override]
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         if isinstance(obj, np.generic):
@@ -16,12 +18,12 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def load_json(path):
+def load_json(path) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def dump_json(obj, path):
+def dump_json(obj: Any, path: Path):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, cls=NumpyEncoder)
 

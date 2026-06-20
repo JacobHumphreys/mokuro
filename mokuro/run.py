@@ -44,9 +44,9 @@ def run(
         version: Print the version of mokuro and exit.
     """
 
-    if version:
-        print(f"{__version__}")
-        return
+    print_version(version)
+
+    warn_ocr(disable_ocr)
 
     if disable_ocr:
         logger.info("Running with OCR disabled")
@@ -77,7 +77,7 @@ def run(
             logger.error(f"Invalid path: {path_normalized}")
             return
 
-    paths = paths_
+    paths: list[Path] = paths_
 
     if parent_dir is not None:
         for p in Path(parent_dir).expanduser().absolute().iterdir():
@@ -144,6 +144,16 @@ def run(
                 num_sucessful += 1
 
         logger.info(f"Processed successfully: {num_sucessful}/{len(vc)}")
+
+
+def print_version(version: bool):
+    if version:
+        print(f"{__version__}")
+        return
+
+
+def warn_ocr(disable_ocr: bool):
+    disable_ocr
 
 
 if __name__ == "__main__":

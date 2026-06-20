@@ -1,3 +1,6 @@
+from typing import Any
+from numpy.typing import NDArray
+from pathlib import Path
 import cv2
 import numpy as np
 from PIL import Image
@@ -42,12 +45,15 @@ class MangaPageOcr:
             self.text_detector = TextDetector(
                 model_path=cache.comic_text_detector, input_size=detector_input_size, device=device, act="leaky"
             )
+            logger.info(f"Initializing OCR")
             self.mocr = MangaOcr(pretrained_model_name_or_path, force_cpu)
 
-    def __call__(self, img_path):
-        img = imread(img_path)
+    def __call__(self, img_path: Path) -> dict[str, str | Any | list[Any]]:
+        img: NDArray[np.uint8] | None = imread(img_path)
+
         if img is None:
             raise InvalidImage()
+
         H, W, *_ = img.shape
         result = {"version": __version__, "img_width": W, "img_height": H, "blocks": []}
 

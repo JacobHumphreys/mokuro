@@ -4,6 +4,7 @@ from mokuro.run import run
 
 
 def main():
+    print("fukc")
     fire.Fire(run)
 
 

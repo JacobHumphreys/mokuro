@@ -1,3 +1,6 @@
+from sympy.codegen.ast import none
+from pathlib import Path
+from typing import Iterable, Iterator, Any
 import uuid
 from enum import Enum, auto
 
@@ -21,9 +24,9 @@ class VolumeStatus(Enum):
 
 
 class Title:
-    def __init__(self, path):
+    def __init__(self, path: Path ):
         self.path = path
-        self._uuid = None
+        self._uuid: str | None = None
         self.name = path.name
 
     @property
@@ -63,18 +66,18 @@ class Title:
 class Volume:
     format_preference_order = ["", ".cbz", ".zip"]
 
-    def __init__(self, path_in):
+    def __init__(self, path_in: Path):
         self.paths_in = {path_in}
         self.path_mokuro = get_path_mokuro(path_in)
 
         if self.path_mokuro.is_file():
-            self.mokuro_data = load_json(self.path_mokuro)
+            self.mokuro_data: dict[str, Any] | None = load_json(self.path_mokuro)
             self.uuid = self.mokuro_data.get("volume_uuid")
         else:
             self.mokuro_data = None
             self.uuid = str(uuid.uuid4())
 
-        self.title = None
+        self.title: Title | None = None
         self.name = self.path_mokuro.stem
 
         if self.path_mokuro.is_file():
@@ -85,23 +88,30 @@ class Volume:
             self.status = VolumeStatus.UNPROCESSED
 
     @property
-    def path_in(self):
+    def path_in(self) -> Path: 
         return min(self.paths_in, key=lambda path: Volume.format_preference_order.index(get_path_format(path)))
 
     @property
-    def path_ocr_cache(self):
+    def path_ocr_cache(self) -> Path:
+        if (self.path_mokuro is None):
+            raise ValueError("Path Mokuro is None")
+
         return self.path_mokuro.parent / "_ocr" / self.path_mokuro.stem
 
     @property
     def path_title(self):
+        if (self.path_mokuro is None):
+            raise ValueError("Path Mokuro is None")
+
         return self.path_mokuro.parent
 
     def get_json_paths(self):
-        json_paths = natsorted(p.relative_to(self.path_ocr_cache) for p in self.path_ocr_cache.glob("**/*.json"))
+        json_paths = natsorted(p.relative_to(self.path_ocr_cache)
+                               for p in self.path_ocr_cache.glob("**/*.json"))
         json_paths = {p.with_suffix(""): p for p in json_paths}
         return json_paths
 
-    def get_img_paths(self):
+    def get_img_paths(self)-> dict[Path,Path]:
         assert self.path_in.is_dir()
         img_paths = natsorted(
             p.relative_to(self.path_in)
@@ -135,7 +145,7 @@ class VolumeCollection:
     def __len__(self):
         return len(self.volumes)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Volume]:
         return iter(natsorted(self.volumes.values(), key=lambda vtp: vtp.path_in))
 
     def add_path_in(self, path_in):
@@ -154,8 +164,12 @@ class VolumeCollection:
         volume.title = title
 
 
-def get_path_mokuro(path_in):
+def get_path_mokuro(path_in: Path)-> Path:
+    """
+    Returns output file path
+    """
     if path_in.is_dir():
         return path_in.parent / (path_in.name + ".mokuro")
     if path_in.is_file() and path_in.suffix.lower() in {".zip", ".cbz"}:
         return path_in.with_suffix(".mokuro")
+    raise ValueError("Unknown Input File Type")
