@@ -49,6 +49,45 @@ Run in command line:
 pip3 install mokuro
 ```
 
+## With Nix Flakes
+
+If you use nix, you might find it easier to use our the dedicated flake. If you want to use native nix packages instead of pip/uv, replace "default" with "mokuro-nix". 
+
+### Use nix remotely
+
+If you just want to try mokuro, you can use the following:
+
+```commandline
+nix run github:JacobHumphreys/mokuro#default -- /path/to/volume
+```
+
+Alternatively, you can use the following to enter a shell using the flake:
+
+```commandline
+nix shell github:JacobHumphreys/mokuro#default
+```
+
+Then you can run mokuro with:
+
+```commandline
+mokuro /path/to/file/
+```
+
+### Using nix locally
+
+You can run mokuro with local changes with the following command from the repository root:
+
+```commandline
+nix run /path/to/repo/#default -- /path/to/volume
+```
+
+This flake can also be used as a local development shell:
+
+```commandline
+nix develop /path/to/repo/#default
+mokuro path/to/volume
+```
+
 # Usage
 
 ## Run on one volume
