@@ -8,7 +8,6 @@
   outputs = {
     self,
     nixpkgs,
-    nixpkgs-latest,
   }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
