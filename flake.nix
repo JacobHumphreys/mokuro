@@ -106,6 +106,7 @@
 
           #Goto nix store copy of repo
           cd ${src}
+          ls
           ls comic_text_detector
 
           #convert paths to absolute. Mokuro will run in the store not from cwd.
