@@ -63,7 +63,7 @@
     combined_src = pkgs.runCommand "mokuro-combined-src" {} ''
           mkdir -p $out
           cp -r ${src}/. $out/
-          cp -r ${comic-text-detector-src} $out/comic-text-detector
+          cp -r ${comic-text-detector-src} $out/comic_text_detector
           chmod -R u+w $out
     '';
 
