@@ -115,7 +115,7 @@
           export CV2_NUM_THREADS=1
 
           #Goto nix store copy of repo
-          cd ${combined_src}
+          cd ${src}
           ls comic_text_detector
 
           #convert paths to absolute. Mokuro will run in the store not from cwd.
