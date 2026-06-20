@@ -52,20 +52,20 @@
 
     torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
 
-    comic-text-detector-src = pkgs.fetchFromGitHub {
-        owner = "kha-white";
-        repo = "comic-text-detector";
-        rev = "293ae8060b08f2ed323693019f9bd0c173af4eab";
-        sha256 = "lxmcDuPRlRABkXJP2oNvjRLxRJpqK6mn+F4kaGvnz/k=";  
-    };
+    # comic-text-detector-src = pkgs.fetchFromGitHub {
+    #     owner = "kha-white";
+    #     repo = "comic-text-detector";
+    #     rev = "293ae8060b08f2ed323693019f9bd0c173af4eab";
+    #     sha256 = "lxmcDuPRlRABkXJP2oNvjRLxRJpqK6mn+F4kaGvnz/k=";  
+    # };
 
     src = ./.;
-    combined_src = pkgs.runCommand "mokuro-combined-src" {} ''
-          mkdir -p $out
-          cp -r ${src}/. $out/
-          cp -r ${comic-text-detector-src} $out/comic_text_detector
-          chmod -R u+w $out
-    '';
+    # combined_src = pkgs.runCommand "mokuro-combined-src" {} ''
+    #       mkdir -p $out
+    #       cp -r ${src}/. $out/
+    #       cp -r ${comic-text-detector-src} $out/comic_text_detector
+    #       chmod -R u+w $out
+    # '';
 
   in {
     devShells.${system} = {
@@ -114,7 +114,7 @@
           export CV2_NUM_THREADS=1
 
           #Goto nix store copy of repo
-          cd ${combined_src}
+          cd ${src}
 
           #convert paths to absolute. Mokuro will run in the store not from cwd.
           args=()
