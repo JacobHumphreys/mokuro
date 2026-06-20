@@ -52,7 +52,7 @@
 
     torchLib = "${pythonWithPackages}/lib/${pkgs.python312.libPrefix}/site-packages/torch/lib";
 
-    src = ./.;
+    src = self;
 
     comic-text-detector-src = pkgs.fetchFromGitHub {
         owner = "kha-white";
@@ -64,6 +64,7 @@
     combined_src = pkgs.runCommand "mokuro-combined-src" {} ''
           mkdir -p $out
           cp -r ${src}/. $out/
+          rm -rf $out/comic_text_detector/
           cp -rf ${comic-text-detector-src}/* $out/comic_text_detector/
           chmod -R u+w $out
     '';
