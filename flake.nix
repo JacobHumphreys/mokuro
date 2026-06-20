@@ -115,6 +115,7 @@
 
           #Goto nix store copy of repo
           cd ${src}
+          ls
 
           #convert paths to absolute. Mokuro will run in the store not from cwd.
           args=()
