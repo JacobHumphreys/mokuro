@@ -1,13 +1,13 @@
 {
   "nodes": {
-    "comic-text-detector": {
+    "comic_text_detector": {
       "flake": false,
       "locked": {
-        "path": "./comic_text_detector",
+        "path": "comic_text_detector",
         "type": "path"
       },
       "original": {
-        "path": "./comic_text_detector",
+        "path": "comic_text_detector",
         "type": "path"
       },
       "parent": []
@@ -30,7 +30,7 @@
     },
     "root": {
       "inputs": {
-        "comic-text-detector": "comic-text-detector",
+        "comic_text_detector": "comic_text_detector",
         "nixpkgs": "nixpkgs"
       }
     }

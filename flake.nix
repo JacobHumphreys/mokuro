@@ -4,8 +4,8 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/25.11";
     self.submodules = true;
-    comic-text-detector = {
-      url = "path:./comic_text_detector";
+    comic_text_detector = {
+      url = "path:comic_text_detector";
       flake = false;                 # Set to false if not a flake
     };
   };
@@ -13,7 +13,7 @@
   outputs = {
     self,
     nixpkgs,
-    comic-text-detector,
+    comic_text_detector,
   }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
@@ -103,7 +103,6 @@
           export MKL_NUM_THREADS=1
           export OPENBLAS_NUM_THREADS=1
           export CV2_NUM_THREADS=1
-          export PYTHONPATH="${comic-text-detector}"
 
           #Goto nix store copy of repo
           cd ${src}
